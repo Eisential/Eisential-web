@@ -24,13 +24,13 @@ export const Header = ({ onNewTaskClick, onCategoriesClick }: HeaderProps) => {
           onClick={onCategoriesClick}
           className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-gray-100"
         >
-          Categories
+          Categorias
         </button>
         <button
           onClick={onNewTaskClick}
           className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700"
         >
-          + New Task
+          + Nueva Tarea
         </button>
       </div>
     </header>

@@ -6,14 +6,14 @@ import { TaskCard } from './TaskCard';
 export const EisenhowerMatrix = () => {
   return (
     <div className="rounded-lg bg-white p-4 shadow">
-      <h2 className="text-xl font-bold">Eisenhower Matrix</h2>
+      <h2 className="text-xl font-bold">Matriz Eisenhower</h2>
       
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         
         {/* Cuadrante 1: Do First (Hacer) */}
         <MatrixQuadrant 
-          title="Do First" 
-          subtitle="Important & Urgent" 
+          title="Hacer Primero" 
+          subtitle="Importante y Urgente" 
           borderColor="border-red-500"
         >
           <TaskCard 
@@ -27,8 +27,8 @@ export const EisenhowerMatrix = () => {
 
         {/* Cuadrante 2: Schedule (Planificar) */}
         <MatrixQuadrant 
-          title="Schedule" 
-          subtitle="Important & Not Urgent" 
+          title="Horario" 
+          subtitle="Importante y No Urgente" 
           borderColor="border-green-500"
         >
           <TaskCard 
@@ -42,8 +42,8 @@ export const EisenhowerMatrix = () => {
 
         {/* Cuadrante 3: Delegate (Delegar) */}
         <MatrixQuadrant 
-          title="Delegate" 
-          subtitle="Not Important & Urgent" 
+          title="Delegar" 
+          subtitle="No Importante y Urgente" 
           borderColor="border-yellow-500"
         >
           {/* Vacío */}
@@ -51,8 +51,8 @@ export const EisenhowerMatrix = () => {
 
         {/* Cuadrante 4: Eliminate (Eliminar) */}
         <MatrixQuadrant 
-          title="Eliminate" 
-          subtitle="Not Important & Not Urgent" 
+          title="Eliminar" 
+          subtitle="No Importante y No Urgente" 
           borderColor="border-gray-400"
         >
           {/* Vacío */}

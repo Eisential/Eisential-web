@@ -46,13 +46,13 @@ export const CreateNewTaskModal = ({ isOpen, onClose, onAddTask, categories }: M
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Create New Task</h2>
+          <h2 className="text-2xl font-bold">Crear Nueva Tarea</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-800">&times;</button>
         </div>
         
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label htmlFor="title" className="block text-sm font-medium">Title *</label>
+            <label htmlFor="title" className="block text-sm font-medium">Título *</label>
             <input
               type="text"
               id="title"
@@ -63,7 +63,7 @@ export const CreateNewTaskModal = ({ isOpen, onClose, onAddTask, categories }: M
             />
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm font-medium">Description</label>
+            <label htmlFor="description" className="block text-sm font-medium">Descripción</label>
             <textarea
               id="description"
               value={description}
@@ -76,7 +76,7 @@ export const CreateNewTaskModal = ({ isOpen, onClose, onAddTask, categories }: M
           
           {/* 5. AÑADIMOS EL MENÚ DESPLEGABLE PARA CATEGORÍAS */}
           <div>
-            <label htmlFor="category" className="block text-sm font-medium">Category *</label>
+            <label htmlFor="category" className="block text-sm font-medium">Categoría *</label>
             <select
               id="category"
               value={selectedCategoryId}

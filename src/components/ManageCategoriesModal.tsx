@@ -30,14 +30,14 @@ export const ManageCategoriesModal = ({ isOpen, onClose, categories, onAddCatego
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">Manage Categories</h2>
+          <h2 className="text-2xl font-bold">Administrar Categorias</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-800">&times;</button>
         </div>
 
         {/* 2. Conectamos el formulario a la función handleSubmit */}
         <form onSubmit={handleSubmit} className="mt-4 space-y-4 border-b pb-6">
           <div>
-            <label htmlFor="categoryName" className="block text-sm font-medium">Category Name</label>
+            <label htmlFor="categoryName" className="block text-sm font-medium">Nombre de Categoria</label>
             {/* 3. Conectamos el input a su estado */}
             <input
               type="text"
@@ -49,12 +49,12 @@ export const ManageCategoriesModal = ({ isOpen, onClose, categories, onAddCatego
             />
           </div>
           <button type="submit" className="w-full rounded-lg bg-purple-600 py-2 font-medium text-white hover:bg-purple-700">
-            Add Category
+            Añadir Categoria
           </button>
         </form>
         
         <div className="mt-6">
-          <h3 className="font-semibold">Existing Categories</h3>
+          <h3 className="font-semibold">Categorias Existentes</h3>
           {/* 4. Hacemos el map sobre las categorías que recibimos como props */}
           <div className="mt-3 space-y-2">
             {categories.map(cat => (
@@ -63,7 +63,7 @@ export const ManageCategoriesModal = ({ isOpen, onClose, categories, onAddCatego
                   <span className={`h-4 w-4 rounded-full ${cat.color}`}></span>
                   <span>{cat.name}</span>
                 </div>
-                <button className="text-sm text-gray-400 hover:text-red-600">Remove</button>
+                <button className="text-sm text-gray-400 hover:text-red-600">Quitar</button>
               </div>
             ))}
           </div>
