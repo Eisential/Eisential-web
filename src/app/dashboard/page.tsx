@@ -1,7 +1,8 @@
 // src/app/dashboard/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   DndContext,
   closestCenter,
@@ -26,17 +27,77 @@ import { TaskCard } from '@/src/components/TaskCard';
 export type Task = { id: number; title: string; category: string; date: string; color: string; };
 export type Category = { id: number; name: string; color: string; };
 
+// Tipo para el usuario
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+  image?: string;
+}
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Verificar sesión obteniendo datos del usuario desde el backend
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        const response = await fetch(`${BACKEND_URL}/api/auth/session`, {
+          credentials: 'include', // Importante: incluir cookies
+        });
+
+        if (response.ok) {
+          const session = await response.json();
+          if (session?.user) {
+            setUser(session.user);
+          } else {
+            // No hay sesión, redirigir a login
+            router.push('/auth/signin?callbackUrl=/dashboard');
+          }
+        } else {
+          // Error o no autenticado
+          router.push('/auth/signin?callbackUrl=/dashboard');
+        }
+      } catch (error) {
+        console.error('Error verificando sesión:', error);
+        router.push('/auth/signin?callbackUrl=/dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkSession();
+  }, [router]);
+
+  // Mostrar loading mientras se verifica la sesión
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center" style={{ backgroundColor: '#28436B' }}>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style={{ borderColor: '#36EBE4' }}></div>
+          <p className="mt-4 font-medium" style={{ color: '#8EEB36' }}>Verificando sesión...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No mostrar nada si no hay usuario (se está redirigiendo)
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen w-full bg-gray-50 text-gray-800">
-      <DashboardLayout />
+      <DashboardLayout user={user} />
     </div>
   );
 }
 
-function DashboardLayout() {
-  // Mueve los datos iniciales DENTRO del componente
+function DashboardLayout({ user }: { user: User }) {
+  // Datos iniciales con tareas de ejemplo
   const initialTasks: Task[] = [
     { id: 1, title: 'Configurar el proyecto y la base de datos', category: 'Work', date: 'Oct 10, 2025', color: 'bg-red-500' },
     { id: 2, title: 'Diseñar los componentes de la UI en Figma', category: 'Work', date: 'Oct 15, 2025', color: 'bg-green-500' },
@@ -79,8 +140,8 @@ function DashboardLayout() {
     setIsNewTaskModalOpen(false);
   };
 
-  const handleAddCategory = (categoryName: string) => {
-    const newCategory: Category = { id: Date.now(), name: categoryName, color: 'bg-gray-400' };
+  const handleAddCategory = (categoryName: string, categoryColor: string) => {
+    const newCategory: Category = { id: Date.now(), name: categoryName, color: categoryColor };
     setCategories((prevCategories) => [...prevCategories, newCategory]);
   };
 
@@ -91,6 +152,7 @@ function DashboardLayout() {
       onDragEnd={handleDragEnd}
     >
       <Header
+        user={user}
         onNewTaskClick={() => setIsNewTaskModalOpen(true)}
         onCategoriesClick={() => setIsCategoriesModalOpen(true)}
       />

@@ -7,8 +7,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Prueba de Tailwind',
-  description: 'Probando si Tailwind funciona',
+  title: 'Eisential - Matriz Eisenhower',
+  description: 'Organiza tus tareas con la Matriz Eisenhower',
 };
 
 export default function RootLayout({
@@ -18,7 +18,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        {children}
+      </body>
     </html>
   );
 }
