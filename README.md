@@ -32,3 +32,10 @@ Permite crear, categorizar y organizar tareas en un tablero visual de cuatro cua
 - *ORM:* [Prisma](https://www.prisma.io/)  
 - *Autenticación:* [NextAuth](https://next-auth.js.org/)  
 - *Calidad de código:* SonarQube
+
+---
+##Cambios realizados 1.1 (Diego)
+
+Se hizo un cambios en el codigo "TaskCard.tsx" para que permita tener un checkbox en las TaskCards
+También se implementó la logica para que pueda hacerse el cambio entre completado y pendiente y se hizo una primera versión del código para cambiar el estado de una taskCard dentro de la base de datos
+

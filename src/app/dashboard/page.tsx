@@ -24,7 +24,7 @@ import { ManageCategoriesModal } from '@/src/components/ManageCategoriesModal';
 import { TaskCard } from '@/src/components/TaskCard';
 
 // Define los 'types' aquí fuera para que sean exportables y reutilizables
-export type Task = { id: number; title: string; category: string; date: string; color: string; };
+export type Task = { id: number; title: string; category: string; date: string; color: string; completado: boolean;};
 export type Category = { id: number; name: string; color: string; };
 
 // Tipo para el usuario
@@ -34,6 +34,22 @@ interface User {
   name?: string;
   image?: string;
 }
+
+/*const handleToggle = async (taskId: number, next: boolean) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/tasks/${taskId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      completed: next,
+      completed_at: next ? new Date().toISOString() : null,
+    }),
+  });
+  if (!res.ok) {
+    throw new Error('Error al actualizar tarea');
+  }
+};
+*/
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -99,9 +115,9 @@ export default function DashboardPage() {
 function DashboardLayout({ user }: { user: User }) {
   // Datos iniciales con tareas de ejemplo
   const initialTasks: Task[] = [
-    { id: 1, title: 'Configurar el proyecto y la base de datos', category: 'Work', date: 'Oct 10, 2025', color: 'bg-red-500' },
-    { id: 2, title: 'Diseñar los componentes de la UI en Figma', category: 'Work', date: 'Oct 15, 2025', color: 'bg-green-500' },
-    { id: 3, title: 'Revisar correos y responder mensajes', category: 'Admin', date: 'Oct 09, 2025', color: 'bg-yellow-500' },
+    { id: 1, title: 'Configurar el proyecto y la base de datos', category: 'Work', date: 'Oct 10, 2025', color: 'bg-red-500', completado: false },
+    { id: 2, title: 'Diseñar los componentes de la UI en Figma', category: 'Work', date: 'Oct 15, 2025', color: 'bg-green-500', completado: false},
+    { id: 3, title: 'Revisar correos y responder mensajes', category: 'Admin', date: 'Oct 09, 2025', color: 'bg-yellow-500', completado:false },
   ];
   
   const initialCategories: Category[] = [
@@ -145,6 +161,8 @@ function DashboardLayout({ user }: { user: User }) {
     setCategories((prevCategories) => [...prevCategories, newCategory]);
   };
 
+  
+
   return (
     <DndContext
       collisionDetection={closestCenter}
@@ -184,8 +202,23 @@ function DashboardLayout({ user }: { user: User }) {
       />
 
       <DragOverlay>
-        {activeTask ? <TaskCard {...activeTask} /> : null}
+        
+         {activeTask ? (
+          <TaskCard
+            id={activeTask.id}
+            title={activeTask.title}
+            category={activeTask.category}
+            date={activeTask.date}
+            categoryColor={activeTask.color}
+            completado={activeTask.completado}
+            // onToggle={handleToggleLocal}
+          />
+        ) : null}
       </DragOverlay>
+
+
     </DndContext>
   );
+  
 }
+
