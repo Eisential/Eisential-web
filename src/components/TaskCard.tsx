@@ -39,6 +39,7 @@ export const TaskCard = ({ id, title, category, date, categoryColor = 'bg-gray-4
       ref={setNodeRef}
       style={style}
       className="relative touch-none rounded-lg border bg-white p-4 shadow-sm"
+      { ...attributes } { ...listeners }
     >
       <div className={`absolute left-0 top-0 h-full w-1.5 rounded-l-lg ${categoryColor}`} />
 
@@ -51,6 +52,8 @@ export const TaskCard = ({ id, title, category, date, categoryColor = 'bg-gray-4
           disabled={loading}
           onChange={(e) => handleToggle(e.target.checked)}
           onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         />
 
