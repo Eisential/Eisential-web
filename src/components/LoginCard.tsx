@@ -4,8 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+import { signIn } from 'next-auth/react';
 
 export const LoginCard = () => {
   const searchParams = useSearchParams();
@@ -15,18 +14,18 @@ export const LoginCard = () => {
   useEffect(() => {
     const errorParam = searchParams.get('error');
     if (errorParam) {
-      setError(errorParam);
+      // Puedes mapear errores a mensajes más amigables si lo deseas
+      setError("Hubo un problema al iniciar sesión. Inténtalo de nuevo.");
     }
   }, [searchParams]);
 
-  const handleSignIn = (provider: 'google' | 'github') => {
+  const handleSignIn = async (provider: 'google' | 'github') => {
     setIsLoading(provider);
     setError(null);
     
-    const callbackUrl = encodeURIComponent('http://localhost:3001/dashboard');
-    const authUrl = `${BACKEND_URL}/api/auth/auto-signin/${provider}?callbackUrl=${callbackUrl}`;
-    
-    window.location.href = authUrl;
+    await signIn(provider, {
+      callbackUrl: '/dashboard',
+    });
   };
 
   return (

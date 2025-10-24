@@ -3,12 +3,13 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { signOut } from 'next-auth/react';
 
 interface User {
   id: string;
-  email: string;
-  name?: string;
-  image?: string;
+  email?: string | null;
+  name?: string | null;
+  image?: string | null;
 }
 
 type HeaderProps = {
@@ -19,9 +20,11 @@ type HeaderProps = {
 
 export const Header = ({ user, onNewTaskClick, onCategoriesClick }: HeaderProps) => {
   const handleLogout = async () => {
-    const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-    // Redirigir al endpoint de signout del backend
-    window.location.href = `${BACKEND_URL}/api/auth/signout?callbackUrl=http://localhost:3001`;
+    // Usar signOut de next-auth con callbackUrl personalizado
+    await signOut({ 
+      callbackUrl: '/',
+      redirect: true 
+    });
   };
 
   return (

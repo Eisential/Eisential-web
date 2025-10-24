@@ -15,6 +15,8 @@ import {
   arrayMove,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { useSession } from 'next-auth/react';
+import type { User as NextAuthUser } from 'next-auth';
 
 import { Header } from '@/src/components/Header';
 import { BacklogPanel } from '@/src/components/BacklogPanel';
@@ -27,76 +29,43 @@ import { TaskCard } from '@/src/components/TaskCard';
 export type Task = { id: number; title: string; category: string; date: string; color: string; };
 export type Category = { id: number; name: string; color: string; };
 
-// Tipo para el usuario
-interface User {
-  id: string;
-  email: string;
-  name?: string;
-  image?: string;
-}
-
 export default function DashboardPage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  // Verificar sesión obteniendo datos del usuario desde el backend
+  // Redirigir a login si no está autenticado
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-        const response = await fetch(`${BACKEND_URL}/api/auth/session`, {
-          credentials: 'include', // Importante: incluir cookies
-        });
-
-        if (response.ok) {
-          const session = await response.json();
-          if (session?.user) {
-            setUser(session.user);
-          } else {
-            // No hay sesión, redirigir a login
-            router.push('/auth/signin?callbackUrl=/dashboard');
-          }
-        } else {
-          // Error o no autenticado
-          router.push('/auth/signin?callbackUrl=/dashboard');
-        }
-      } catch (error) {
-        console.error('Error verificando sesión:', error);
-        router.push('/auth/signin?callbackUrl=/dashboard');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkSession();
-  }, [router]);
+    if (status === 'unauthenticated') {
+      router.push('/');
+    }
+  }, [status, router]);
 
   // Mostrar loading mientras se verifica la sesión
-  if (loading) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen w-full flex items-center justify-center" style={{ backgroundColor: '#28436B' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style={{ borderColor: '#36EBE4' }}></div>
-          <p className="mt-4 font-medium" style={{ color: '#8EEB36' }}>Verificando sesión...</p>
+          <p className="mt-4 font-medium" style={{ color: '#8EEB36' }}>Cargando Dashboard...</p>
         </div>
       </div>
     );
   }
 
-  // No mostrar nada si no hay usuario (se está redirigiendo)
-  if (!user) {
-    return null;
+  // Si está autenticado y tenemos un usuario en la sesión, renderizamos el layout
+  if (status === 'authenticated' && session?.user) {
+    return (
+      <div className="min-h-screen w-full bg-gray-50 text-gray-800">
+        <DashboardLayout user={session.user} />
+      </div>
+    );
   }
 
-  return (
-    <div className="min-h-screen w-full bg-gray-50 text-gray-800">
-      <DashboardLayout user={user} />
-    </div>
-  );
+  // Fallback mientras redirige
+  return null;
 }
 
-function DashboardLayout({ user }: { user: User }) {
+function DashboardLayout({ user }: { user: NextAuthUser }) {
   // Datos iniciales con tareas de ejemplo
   const initialTasks: Task[] = [
     { id: 1, title: 'Configurar el proyecto y la base de datos', category: 'Work', date: 'Oct 10, 2025', color: 'bg-red-500' },
