@@ -2,42 +2,79 @@
 'use client';
 
 import { useState } from 'react';
-import { Category } from '@/src/app/dashboard/page';
+import { Category } from '@/src/lib/types';
+import { createCategory, updateCategory, deleteCategory } from '@/src/services/categoryService';
 
 type ModalProps = {
   isOpen: boolean;
   onClose: () => void;
   categories: Category[];
-  onAddCategory: (name: string, color: string) => void;
+  onCategoriesChange: () => void; // Callback para recargar categorías
 };
 
-export const ManageCategoriesModal = ({ isOpen, onClose, categories, onAddCategory }: ModalProps) => {
+export const ManageCategoriesModal = ({ isOpen, onClose, categories, onCategoriesChange }: ModalProps) => {
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [selectedColor, setSelectedColor] = useState('bg-blue-500');
+  const [selectedColor, setSelectedColor] = useState('#3B82F6');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Paleta de colores predefinidos
   const colorOptions = [
-    { name: 'Rojo', class: 'bg-red-500', hex: '#EF4444' },
-    { name: 'Naranja', class: 'bg-orange-500', hex: '#F97316' },
-    { name: 'Amarillo', class: 'bg-yellow-500', hex: '#EAB308' },
-    { name: 'Verde', class: 'bg-green-500', hex: '#22C55E' },
-    { name: 'Azul', class: 'bg-blue-500', hex: '#3B82F6' },
-    { name: 'Índigo', class: 'bg-indigo-500', hex: '#6366F1' },
-    { name: 'Morado', class: 'bg-purple-500', hex: '#A855F7' },
-    { name: 'Rosa', class: 'bg-pink-500', hex: '#EC4899' },
-    { name: 'Turquesa', class: 'bg-teal-500', hex: '#14B8A6' },
-    { name: 'Cyan', class: 'bg-cyan-500', hex: '#06B6D4' },
+    { name: 'Rojo', hex: '#EF4444' },
+    { name: 'Naranja', hex: '#F97316' },
+    { name: 'Amarillo', hex: '#EAB308' },
+    { name: 'Verde', hex: '#22C55E' },
+    { name: 'Azul', hex: '#3B82F6' },
+    { name: 'Índigo', hex: '#6366F1' },
+    { name: 'Morado', hex: '#A855F7' },
+    { name: 'Rosa', hex: '#EC4899' },
+    { name: 'Turquesa', hex: '#14B8A6' },
+    { name: 'Cyan', hex: '#06B6D4' },
   ];
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCategoryName.trim()) return;
 
-    onAddCategory(newCategoryName, selectedColor);
-    setNewCategoryName('');
-    setSelectedColor('bg-blue-500'); // Reset al color por defecto
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await createCategory({
+        name: newCategoryName.trim(),
+        color: selectedColor,
+      });
+      
+      setNewCategoryName('');
+      setSelectedColor('#3B82F6');
+      onCategoriesChange(); // Recargar categorías
+    } catch (err) {
+      setError('Error al crear la categoría');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (categoryId: string) => {
+    if (!confirm('¿Estás seguro de eliminar esta categoría? Las tareas asociadas también se eliminarán.')) {
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await deleteCategory(categoryId);
+      onCategoriesChange(); // Recargar categorías
+    } catch (err) {
+      setError('Error al eliminar la categoría');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -82,29 +119,35 @@ export const ManageCategoriesModal = ({ isOpen, onClose, categories, onAddCatego
             <div className="grid grid-cols-5 gap-3">
               {colorOptions.map((color) => (
                 <button
-                  key={color.class}
+                  key={color.hex}
                   type="button"
-                  onClick={() => setSelectedColor(color.class)}
-                  className={`h-10 w-10 rounded-full transition-all hover:scale-110 ${color.class} ${
-                    selectedColor === color.class ? 'ring-4 ring-offset-2 ring-[#5FA822]' : ''
+                  onClick={() => setSelectedColor(color.hex)}
+                  style={{ backgroundColor: color.hex }}
+                  className={`h-10 w-10 rounded-full transition-all hover:scale-110 ${
+                    selectedColor === color.hex ? 'ring-4 ring-offset-2 ring-[#5FA822]' : ''
                   }`}
                   title={color.name}
                 />
               ))}
             </div>
             <p className="mt-2 text-xs" style={{ color: '#1E9B96' }}>
-              Color seleccionado: <span className="font-semibold">{colorOptions.find(c => c.class === selectedColor)?.name}</span>
+              Color seleccionado: <span className="font-semibold">{colorOptions.find(c => c.hex === selectedColor)?.name}</span>
             </p>
           </div>
 
+          {error && (
+            <div className="text-red-500 text-sm">{error}</div>
+          )}
+
           <button 
-            type="submit" 
-            className="w-full rounded-lg px-4 py-2 font-medium text-white transition-all hover:scale-105"
+            type="submit"
+            disabled={isLoading}
+            className="w-full rounded-lg px-4 py-2 font-medium text-white transition-all hover:scale-105 disabled:opacity-50"
             style={{ backgroundColor: '#1E9B96' }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5FA822'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1E9B96'}
+            onMouseEnter={(e) => !isLoading && (e.currentTarget.style.backgroundColor = '#5FA822')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1E9B96')}
           >
-            Añadir Categoría
+            {isLoading ? 'Agregando...' : 'Añadir Categoría'}
           </button>
         </form>
         
@@ -114,16 +157,18 @@ export const ManageCategoriesModal = ({ isOpen, onClose, categories, onAddCatego
             {categories.map(cat => (
               <div key={cat.id} className="flex items-center justify-between rounded-md p-2" style={{ backgroundColor: '#F0F9FF' }}>
                 <div className="flex items-center gap-2">
-                  <span className={`h-4 w-4 rounded-full ${cat.color}`}></span>
+                  <span className="h-4 w-4 rounded-full" style={{ backgroundColor: cat.color || '#3B82F6' }}></span>
                   <span style={{ color: '#1A2D4A' }}>{cat.name}</span>
                 </div>
-                <button 
-                  className="text-sm transition-colors"
+                <button
+                  onClick={() => handleDelete(cat.id)}
+                  disabled={isLoading}
+                  className="text-sm transition-colors disabled:opacity-50"
                   style={{ color: '#1E9B96' }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = '#FF6B6B'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = '#1E9B96'}
+                  onMouseEnter={(e) => !isLoading && (e.currentTarget.style.color = '#FF6B6B')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = '#1E9B96')}
                 >
-                  Quitar
+                  Eliminar
                 </button>
               </div>
             ))}

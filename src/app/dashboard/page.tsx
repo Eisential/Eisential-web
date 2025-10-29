@@ -24,10 +24,11 @@ import { EisenhowerMatrix } from '@/src/components/EisenhowerMatrix';
 import { CreateNewTaskModal } from '@/src/components/CreateNewTaskModal';
 import { ManageCategoriesModal } from '@/src/components/ManageCategoriesModal';
 import { TaskCard } from '@/src/components/TaskCard';
+import { getAllCategories } from '@/src/services/categoryService';
+import type { Category } from '@/src/lib/types';
 
 // Define los 'types' aquí fuera para que sean exportables y reutilizables
 export type Task = { id: number; title: string; category: string; date: string; color: string; };
-export type Category = { id: number; name: string; color: string; };
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -72,18 +73,27 @@ function DashboardLayout({ user }: { user: NextAuthUser }) {
     { id: 2, title: 'Diseñar los componentes de la UI en Figma', category: 'Work', date: 'Oct 15, 2025', color: 'bg-green-500' },
     { id: 3, title: 'Revisar correos y responder mensajes', category: 'Admin', date: 'Oct 09, 2025', color: 'bg-yellow-500' },
   ];
-  
-  const initialCategories: Category[] = [
-    { id: 1, name: 'Work', color: 'bg-red-500' },
-    { id: 2, name: 'Personal', color: 'bg-blue-500' },
-    { id: 3, name: 'Admin', color: 'bg-yellow-500' },
-  ];
 
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
+
+  // Cargar categorías desde la API
+  const loadCategories = async () => {
+    try {
+      const data = await getAllCategories();
+      setCategories(data);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  };
+
+  // Cargar categorías al montar el componente
+  useEffect(() => {
+    loadCategories();
+  }, []);
 
   const handleDragStart = (event: DragStartEvent) => {
     const task = tasks.find((t) => t.id === event.active.id);
@@ -107,11 +117,6 @@ function DashboardLayout({ user }: { user: NextAuthUser }) {
     const newTask: Task = { id: Date.now(), ...newTaskData };
     setTasks((prevTasks) => [...prevTasks, newTask]);
     setIsNewTaskModalOpen(false);
-  };
-
-  const handleAddCategory = (categoryName: string, categoryColor: string) => {
-    const newCategory: Category = { id: Date.now(), name: categoryName, color: categoryColor };
-    setCategories((prevCategories) => [...prevCategories, newCategory]);
   };
 
   return (
@@ -149,7 +154,7 @@ function DashboardLayout({ user }: { user: NextAuthUser }) {
         isOpen={isCategoriesModalOpen}
         onClose={() => setIsCategoriesModalOpen(false)}
         categories={categories}
-        onAddCategory={handleAddCategory}
+        onCategoriesChange={loadCategories}
       />
 
       <DragOverlay>
